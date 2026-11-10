@@ -199,11 +199,16 @@ function chkAcc(a){const o=[];if(!a.que)return o;if(/concientizar|sensibilizar|r
 async function ia(tarea,texto,key){
   if(!AI_ENDPOINT)return toast('La IA aún no está conectada. Las guías y sugerencias automáticas siguen funcionando.');
   if(!texto.trim())return toast('Escribe primero algo para que la IA lo revise.');
-  iaOut[key]={t:'Pensando…',tarea};paintIA();
-  try{const r=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tarea,texto,contexto:{herramienta:TOOLS[cur.tipo].n,problema:cur.problema,kpis:cur.kpis,sector:cur.sector}})});
-    const j=await r.json();iaOut[key]={t:j.texto||'Sin respuesta.',tarea,ok:true}}catch(e){iaOut[key]={t:'No se pudo conectar con la IA.',tarea}}
+  iaOut[key]={t:'Pensando… (puede tardar hasta un minuto)',tarea,wait:true};paintIA();
+  const falla='La IA está ocupada o llegó al límite gratuito de Google. Intenta de nuevo en un minuto; las guías y sugerencias automáticas siguen funcionando.';
+  try{const c=new AbortController(),tm=setTimeout(()=>c.abort(),70000);
+    const r=await fetch(AI_ENDPOINT,{signal:c.signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tarea,texto,contexto:{herramienta:TOOLS[cur.tipo].n,problema:cur.problema,kpis:cur.kpis,sector:cur.sector}})});
+    clearTimeout(tm);const j=await r.json();
+    iaOut[key]=j.ok&&j.texto?{t:j.texto,tarea,ok:true}:{t:falla,tarea,retry:[tarea,texto]};
+    if(!j.ok)console.warn('IA:',j.detalle||j.texto)}
+  catch(e){iaOut[key]={t:e.name==='AbortError'?'La IA tardó demasiado en responder. Intenta de nuevo.':'No se pudo conectar con la IA. Revisa tu conexión.',tarea,retry:[tarea,texto]}}
   paintIA()}
-function paintIA(){document.querySelectorAll('[data-ia]').forEach(el=>{const o=iaOut[el.dataset.ia];el.innerHTML=o?`<div class="iabox"><b>Sugerencia IA</b>\n${esc(o.t)}<div class="noprint" style="margin-top:8px">${o.ok&&o.tarea==='redaccion'?`<button class="btn sm" data-act="iaUsar" data-k="${el.dataset.ia}">Usar este texto</button> `:''}<button class="ghost sm" data-act="iaNo" data-k="${el.dataset.ia}">Cerrar</button></div></div>`:''})}
+function paintIA(){document.querySelectorAll('[data-ia]').forEach(el=>{const o=iaOut[el.dataset.ia];el.innerHTML=o?`<div class="iabox"><b>Sugerencia IA</b>\n${esc(o.t)}<div class="noprint" style="margin-top:8px">${o.ok&&o.tarea==='redaccion'?`<button class="btn sm" data-act="iaUsar" data-k="${el.dataset.ia}">Usar este texto</button> `:''}${o.retry?`<button class="btn sm" data-act="iaRetry" data-k="${el.dataset.ia}">Reintentar</button> `:''}<button class="ghost sm" data-act="iaNo" data-k="${el.dataset.ia}">Cerrar</button></div></div>`:''})}
 
 /* ---------- componentes ---------- */
 const inp=(p,ph='',type='text')=>`<input type="${type}" data-p="${p}" value="${esc(get(cur,p))}" placeholder="${esc(ph)}">`;
@@ -328,6 +333,7 @@ const ACT={
   iaProb(){ia('redaccion',cur.problema,'prob')},
   iaWhy(){ia('porques',cur.datos.porques.map((c,i)=>`Cadena ${i+1}: `+c.w.filter(Boolean).map((w,j)=>`${j+1}) ${w}`).join(' | ')+' | Causa raíz: '+c.raiz).join('\n'),'why')},
   iaIsh(){ia('causas',cur.problema||cur.titulo,'ish')},
+  iaRetry(d){const o=iaOut[d.k];if(o&&o.retry)ia(o.retry[0],o.retry[1],d.k)},
   iaUsar(d){cur.problema=iaOut[d.k].t;delete iaOut[d.k];render()},iaNo(d){delete iaOut[d.k];paintIA()},
   async demo(){const r=nuevo('ra');Object.assign(r,{titulo:'Rechazos',sede:'Yopal',sector:'Distribución',fecha:hoy(),problema:'Desviación de rechazo del 13 al 18 de octubre: 4,1% vs meta 2,5% en rutas de Yopal',kpis:['OTIF','In Full','Rechazo','On Time']});
     Object.assign(r.datos,{clase:'Repetitivo',como:'Reunión diaria de logística',que:'Desviación de rechazo',cuando:'13 al 18 de octubre',donde:'Rutas Yopal',quien:'Equipo de líderes',cual:'Rechazos',sintomas:[{punto:'Clientes manifiestan que cancelaron el pedido desde la app',res:'OK',accion:'Llamada de validación'},{punto:'Clientes no cuentan con el envase',res:'OK',accion:'Aviso a ventas'}]});
