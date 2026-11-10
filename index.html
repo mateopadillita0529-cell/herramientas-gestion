@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Herramientas de Gestión · Gerencia Llanos</title>
+<style>
+:root{--bg:#f5f4ef;--card:#fff;--ink:#1d1d1b;--mut:#6d6c66;--line:#e1dfd6;--acc:#a97a06;--accbg:#fbf3dc;--ok:#2e7d4f;--warn:#b97f00;--bad:#c0392b;--idle:#8a8a84;--sh:0 1px 3px rgba(0,0,0,.07)}
+[data-theme=dark]{--bg:#141412;--card:#1e1e1b;--ink:#ecebe5;--mut:#a09f97;--line:#34342f;--acc:#e3b53a;--accbg:#2b2617;--ok:#5cb884;--warn:#e0a92e;--bad:#e36a5c;--idle:#8a8a84;--sh:none}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.2px}.brand small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+.bar{width:4px;height:34px;background:var(--acc);border-radius:2px}
+nav{display:flex;gap:4px;margin-left:10px}
+nav button,.ghost{background:none;border:1px solid transparent;color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer;font:inherit}
+nav button.on{background:var(--accbg);color:var(--acc);font-weight:600}
+.ghost{border-color:var(--line)}.ghost:hover,nav button:hover{border-color:var(--acc)}
+.sp{flex:1}
+.pill{font-size:12px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--mut);white-space:nowrap}
+main{max-width:1180px;margin:0 auto;padding:20px 16px 80px}
+h1{font-size:22px;margin:4px 0 14px}h2{font-size:16px;margin:0 0 10px}h3{font-size:14px;margin:14px 0 6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}
+.tools{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.tool{cursor:pointer;border-left:4px solid var(--acc);transition:transform .1s}.tool:hover{transform:translateY(-2px)}
+.tool.off{opacity:.5;cursor:default;border-left-color:var(--line)}.tool.off:hover{transform:none}
+.tool b{display:block;font-size:16px}.tool span{color:var(--mut);font-size:13px}
+.kpiN{font-size:28px;font-weight:700}.kpiL{color:var(--mut);font-size:13px}
+label{display:block;font-size:12px;font-weight:600;color:var(--mut);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{resize:none;overflow:hidden;min-height:38px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:-1px}
+.btn{background:var(--acc);color:#fff;border:0;padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;font-weight:600}
+[data-theme=dark] .btn{color:#1a1a17}
+.btn.sm,.ghost.sm{padding:4px 9px;font-size:13px}
+.x{background:none;border:0;color:var(--mut);cursor:pointer;font-size:16px;padding:2px 6px}.x:hover{color:var(--bad)}
+.tip{font-size:13px;color:var(--mut);margin:5px 0 0}
+.assist{background:var(--accbg);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:13px}
+.assist b{color:var(--acc)}.assist ul{margin:4px 0 0;padding-left:0;list-style:none}
+.assist li{padding:1px 0}.assist li.y{color:var(--ok)}.assist li.n{color:var(--ink)}
+.warnl{color:var(--warn)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;background:var(--accbg);color:var(--acc);font-size:13px;border:1px solid transparent}
+.chip.sug{background:none;border:1px dashed var(--acc);cursor:pointer}.chip .x{font-size:13px;padding:0 2px}
+.st{font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;color:#fff;white-space:nowrap}
+.st.Completado{background:var(--ok)}.st.En-curso{background:var(--warn)}.st.Atrasado{background:var(--bad)}.st.Sin-iniciar{background:var(--idle)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{background:none;border:0;padding:5px 12px;cursor:pointer;color:var(--ink);font:inherit}.seg button.on{background:var(--acc);color:#fff}
+.why{display:grid;grid-template-columns:repeat(5,1fr) 1.2fr;gap:8px;align-items:start}
+.why .n{font-size:11px;font-weight:700;color:var(--acc)}
+.act{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;display:grid;grid-template-columns:1.1fr 1.6fr 1.6fr 1fr .9fr .9fr auto;gap:8px;align-items:start}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-size:12px;color:var(--mut);text-transform:uppercase;padding:6px 8px}td{padding:9px 8px;border-top:1px solid var(--line);vertical-align:top}
+tr.row{cursor:pointer}tr.row:hover td{background:var(--accbg)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .dh{font-size:12px;color:var(--mut);text-align:center;font-weight:600;padding:4px}
+.day{min-height:92px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:4px;font-size:12px;overflow:hidden}
+.day.out{opacity:.35}.day.today{border-color:var(--acc);border-width:2px}.day .d{font-weight:700;color:var(--mut)}
+.ev{display:block;margin-top:2px;padding:1px 5px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#fff;background:var(--idle)}
+.ev.c{background:var(--acc)}.ev.Completado{background:var(--ok)}.ev.En-curso{background:var(--warn)}.ev.Atrasado{background:var(--bad)}.ev.s{background:none;color:var(--ink);border:1px solid var(--line)}
+.tl{border-left:2px solid var(--line);margin-left:6px;padding-left:12px}.tl div{margin-bottom:8px;font-size:14px}.tl small{color:var(--mut)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;z-index:99;max-width:90vw}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}.modal .card{max-width:420px;width:100%}
+.top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+svg text{fill:var(--ink);font-family:inherit}
+.iabox{white-space:pre-wrap;border:1px dashed var(--acc);border-radius:10px;padding:10px;margin-top:8px;font-size:14px}
+@media(max-width:860px){.g2,.g3,.g4,.g5,.why,.act{grid-template-columns:1fr}.day{min-height:60px}nav{margin-left:0}}
+@media print{header,.noprint,.assist,.tip,.x{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}main{padding:0;max-width:none}input,select,textarea{border:0;background:none;padding:2px 0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar"></div>
+  <div class="brand">Herramientas de Gestión<small>Gerencia Llanos · CD Villavicencio / Yopal</small></div>
+  <nav id="nav"></nav><div class="sp"></div>
+  <span class="pill" id="modo"></span>
+  <button class="ghost sm" id="tema" title="Tema claro/oscuro">◐</button>
+  <button class="ghost sm" id="quien"></button>
+</header>
+<main id="app"></main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ============ CONFIGURACIÓN (lo único que debes editar) ============ */
+// 1) Pega aquí la configuración de tu NUEVO proyecto Firebase. Si queda vacío, la app guarda solo en este navegador (modo local).
+const FIREBASE_CONFIG = { apiKey:"AIzaSyDmM9CLFme6s8SuNyyLHknuCrSRiHEBC3s", authDomain:"herramientas-gestion.firebaseapp.com", projectId:"herramientas-gestion", storageBucket:"herramientas-gestion.firebasestorage.app", messagingSenderId:"404262692751", appId:"1:404262692751:web:67db143ff74ac87a8ecdfa" };
+// 2) Pega aquí la URL de tu función de IA (ver worker-ia.js). Si queda vacío, el botón "IA" avisa que no está configurada.
+const AI_ENDPOINT = "";
+const SEDES = ["Villavicencio","Yopal"];
+const SECTORES = ["Distribución","Almacén","Flota","Seguridad","Gente","Gestión","Planeación","Servicio al cliente"];
+/* =================================================================== */
+
+const TOOLS = {
+  '5p':{n:'5 Porqués',d:'Llega a la causa raíz preguntando por qué, paso a paso.'},
+  'ra':{n:'Reporte de Anormalidad',d:'Identificación, síntoma, estandarización, causa raíz y plan con seguimiento.'},
+  'ish':{n:'Espina de pescado',d:'Diagrama de Ishikawa por las 6M con acciones.'}
+};
+const PRONTO = ['SIC','GAPA','PDCA','PMAP','SOP','Árbol de KPI','OPL','TOR','SLAs','GOPs','Clínica de Servicio','Inspección de Ruta','Check oficial de 5S'];
+const CATS = ['Acciones','Correcciones al diseño','Capacitaciones (OPL / matriz de habilidades)','Inversiones / Proyectos','Otras acciones'];
+const ESTADOS = ['Sin iniciar','En curso','Completado'];
+const M6 = {metodo:['Método','¿Existe SOP/OPL? ¿Es claro? ¿Se cumple la rutina o el paso a paso?'],mano:['Mano de obra','¿La persona está entrenada (SKAP)? ¿Hay rotación, ausentismo, fatiga?'],maquina:['Máquina / Equipo','¿Vehículo, montacarga, handheld o sistema fallaron o no estaban disponibles?'],material:['Material','¿Producto, envase, estiba, documentos o insumos llegaron mal o incompletos?'],medicion:['Medición','¿El dato es confiable? ¿Se mide a tiempo? ¿Hay meta y seguimiento visibles?'],medio:['Medio ambiente','¿Clima, vías, orden público, cliente, layout o iluminación influyeron?']};
+
+const KPIS = [...new Map(`5S|Aceleración Brusca|Actos Inseguros|ATCT|Ausentismo|Baja Prematura|Bancarización|Capacidad 1er Viaje|Capacidad Ocupación|CDP|Clasificación Envases|Condición Insegura|Contactos X Camión|Cumplimiento de Secuencia|Desviación De Distancia Km|Desviación De Tiempo|Disponibilidad de Flota T2|DQI|Drop Mínimo|Edad de Producto|Efectividad de Modulación|Entrega 1era Carga|Entrega En Rango|Entrenamiento|Exceso de Carga|Exceso de POCS|Lista de Verificación Fábrica|Falla de Bloqueo|Pérdidas Del Bien Acabado|FNP|Horas FNP|Frenada Brusca|Frescura|FTE|Fuera De Ruta|Fuera De Ruta Cajas|Pérdida HL|Hora Fin Selección|Hora Inicio Selección|Horas De Corte|Horas De Corte Pase|Horas De Corte Planif|Diferencias De Inventario|Jornada Laboral|LS|Rechazo de Tienda|NPS|Obsolescencia|Operación Segura Flota|Pérdidas De Inventario|PI Adherencia Diseño|POCS Alertados|POCS Con Reclamo|Política De Inventarios|Productividad De Carga|Productividad Recolección|Productividad Reempaque|Productividad Selección|Califica mi Entrega|Reclamos|Rendimiento de Combustible|RTI|Ruta Crítica|Ruta SIF|Rutas Críticas|Rutas Digitales|Índice De Curva De Ventas|Total De Curva De Ventas|SCI|Nivel De Servicio|SIF|SLA|Índice Edad Inventario|Agotado|Existencias|TCT|TCT en Sitio|Telemetría|Tiempo Interno|Tiempo Liquidación|Tiempo Mercado|Tiempo Recarga|TLP|TML|Toolkit|Toolkit Violencia|TTP|Utilización De Vehículo|Ventana Horaria|VH|VLC T1|VLC T2|Volumen|WLP|WNP|WQI|ZBB|QLP|OTIF (HL)|Devolución|Horas Calle|Ruta Digital|Atención T1|Tiempo de atención T1|Días Venta|Empaque Dañado|Mantenimiento|Rescates|Disponibilidad|RMD|Descarga T2|Carga T2|No uso cinturón|Exceso de Velocidad|Giro Brusco|Adherencia Sizing|Adherencia ABC|Adherencia De Layout|Densidad De Almacén|Documentación|Efectividad Checklist FLT|Efectividad Checklist T2|Engagement|Fallas De Bloqueo|FGLI|Flota Ociosa|Horas De Operación Forklift (Hrs)|In Full|Inspección De Flota T2 (%)|Número De Viajes|On Time|OTIF (En Pedidos/Órdenes)|OWD|OWS Efectiveness|Precisión De Inventario|Precisión De Picking|Productividad De Picking|Productividad De Picking (Cjs/Hr)|Productividad De Reempaque|Productividad De Selección|Rendimiento de Neumáticos|Rescate En Ruta|Rotación|Rotura de Botellas|Shipping Age|TR Effectiveness|Utilización De Almacén|Warehouse Utilization (%)|WNP Directo|Adherencia Al Retorno De Envase|Adherencia Al Plan De Viajes T1|Adherencia Al Simulador De Recursos Wh|Costo Total Rotura|GOP|In Trade Losses|MBFU (%)|Productividad De Vertido|Roturas En Almacén|Cashless|Asistencia|Fuera de Stock|Capex|Sobre Stock|Driver Click Score|Hardware Trace|Cambio de Frecuencia|DPO Medios|LTIs|TRIs|TQI|Productividad Total|Eficiencia de Activos|Ocupación de Activos|Utilización de Activos|Costo por caso|Nps Delivery|Órdenes Modificadas|General SPO|Acompañamiento SPO|Auditorías SPO|Refugo en Ruta|Cobertura Vacantes|Rotación de nuevos contratados|Inducción a la incorporación|Plan Padrino|3R|Plan De Comunicación|Vacaciones|Compensación Variable|SKAP|Buzón de Sugerencias|Servicios Generales|Caminatas Gemba|Toolkit de autonomía|Feedback de Conductores|TSO|RTM|SCOH|Paradas No Plan|Adherencia Atención T1|Adherencia Dimensionamiento|Adherencia Layout|Asset Efficiency|Ausentismo Injustificado|Capacity Occupation|Clientes por Ruta|DE|Descanso Efectivo|Disponibilidad Flota|Disponibilidad FLTs|Disponibilidad Montacarga|Eficiencia en cargues|Errores de Alistamiento|Evaluados Totales/P.Críticos/Visitas|Horas en Taller FLT|LTI|LTI/TRI|OTIF|Pedidos Rechazados|Pernoctas TAT|Productividad de Sorting|Rechazo|Stock Out/TSO|TAT Segundos Cargues|TRI|TurnOver|VLC|Check List Salida/Check List Retorno|Clientes Cashless aceptados en efectivo|HTD|Marcaciones conductor +JL|Vehículos en Taller|Descargue de VH antes 22:00|Errores de Verificación|PNP|SAC|Tiempo de Reabastecimiento|Total Productivity`.split('|').map(k=>[k.toLowerCase(),k])).values()].sort((a,b)=>a.localeCompare(b,'es'));
+
+// Palabras clave -> KPIs sugeridos (funciona sin IA)
+const KW = [
+ [/rechaz|devol|no recib|cancel[oó] el pedido/,['Rechazo','Pedidos Rechazados','OTIF','In Full','Devolución']],
+ [/tarde|retras|demor|a tiempo|ventana|fuera de horario/,['On Time','Ventana Horaria','Entrega En Rango','OTIF']],
+ [/accident|lesi[oó]n|incidente|ca[ií]da|golpe|atrapamiento/,['LTI','TRI','SIF','Actos Inseguros','Condición Insegura']],
+ [/velocidad|frenad|aceler|giro|cintur|telemetr/,['Telemetría','Exceso de Velocidad','Frenada Brusca','Aceleración Brusca','Giro Brusco','No uso cinturón']],
+ [/inventario|faltante|sobrante|conteo/,['Diferencias De Inventario','Precisión De Inventario','Pérdidas De Inventario']],
+ [/rotura|quebr|rota|aver[ií]|da[ñn]ad/,['Rotura de Botellas','Roturas En Almacén','Costo Total Rotura','Empaque Dañado']],
+ [/picking|alistamiento|selecci[oó]n|separaci[oó]n/,['Productividad De Picking','Precisión De Picking','Errores de Alistamiento','Productividad De Selección']],
+ [/ausen|no asisti|incapacidad|falt[oó] al turno/,['Ausentismo','Ausentismo Injustificado']],
+ [/montacarga|forklift|\bflt\b/,['Disponibilidad Montacarga','Horas en Taller FLT','Efectividad Checklist FLT']],
+ [/taller|varad|falla mec|mantenimiento|veh[ií]culo fuera/,['Disponibilidad Flota','Vehículos en Taller','Mantenimiento','Rescate En Ruta']],
+ [/combustible|gal[oó]n|acpm|tanqueo/,['Rendimiento de Combustible']],
+ [/llanta|neum[aá]tic/,['Rendimiento de Neumáticos']],
+ [/agotado|sin producto|stock|quiebre/,['Agotado','Fuera de Stock','Stock Out/TSO']],
+ [/vencid|frescura|edad del producto|obsole/,['Frescura','Edad de Producto','Obsolescencia']],
+ [/reclam|queja|nps|satisfacci/,['Reclamos','NPS','Califica mi Entrega','POCS Con Reclamo']],
+ [/jornada|horas extra|descanso|horas calle/,['Jornada Laboral','Descanso Efectivo','Horas Calle']],
+ [/liquidaci/,['Tiempo Liquidación']],
+ [/efectivo|cashless|bancariz|consignaci/,['Cashless','Bancarización','Clientes Cashless aceptados en efectivo']],
+ [/cargue|recarga|segundo viaje|segundos cargues/,['Productividad De Carga','Eficiencia en cargues','TAT Segundos Cargues','Tiempo Recarga']],
+ [/\b5s\b|orden y aseo|limpieza|desorden/,['5S']],
+ [/envase|retorno/,['Adherencia Al Retorno De Envase','Clasificación Envases']],
+ [/fuera de ruta|secuencia|desv[ií]o|ruta digital/,['Fuera De Ruta','Cumplimiento de Secuencia','Rutas Digitales']],
+ [/rotaci[oó]n|renunci|retiro de personal/,['Rotación','TurnOver','Baja Prematura']],
+ [/entrenamiento|capacitaci|skap/,['Entrenamiento','SKAP']],
+ [/tiempo en cliente|tct|tiempo de atenci/,['TCT','Tiempo de atención T1']],
+ [/checklist|check list|inspecci[oó]n/,['Check List Salida/Check List Retorno','Efectividad Checklist T2']],
+ [/no visitad|cliente cerrado|venta cero|cobertura/,['Rechazo','Clientes por Ruta','Nivel De Servicio']]
+];
+
+/* ---------- utilidades ---------- */
+const $=s=>document.querySelector(s), app=$('#app');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const hoy=()=>iso(new Date());
+const fcorta=s=>s?s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4):'';
+const get=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+const set=(o,p,v)=>{const ks=p.split('.');const l=ks.pop();ks.reduce((a,k)=>a[k],o)[l]=v};
+const cls=s=>String(s).replace(/ /g,'-');
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3500)}
+const LS={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- datos ---------- */
+let records=[], personas=[], db=null;
+const NUBE=!!FIREBASE_CONFIG.projectId;
+const Store={
+  init(){
+    if(NUBE){
+      firebase.initializeApp(FIREBASE_CONFIG);db=firebase.firestore();
+      db.collection('herramientas').onSnapshot(s=>{records=s.docs.map(d=>d.data());if(view!=='editor')render()},e=>toast('Error de conexión: '+e.message));
+      db.collection('personas').onSnapshot(s=>{personas=s.docs.map(d=>d.data().nombre).sort()});
+    }else{records=LS.get('hg_records',[]);personas=LS.get('hg_personas',[])}
+  },
+  async save(r){if(NUBE)await db.collection('herramientas').doc(r.id).set(JSON.parse(JSON.stringify(r)));else{const i=records.findIndex(x=>x.id===r.id);i<0?records.push(r):records[i]=r;LS.set('hg_records',records)}},
+  async del(id){if(NUBE)await db.collection('herramientas').doc(id).delete();else{records=records.filter(x=>x.id!==id);LS.set('hg_records',records)}},
+  async persona(n){if(personas.includes(n))return;personas.push(n);if(NUBE)await db.collection('personas').doc(n.toLowerCase().replace(/[^a-z0-9]+/g,'-')).set({nombre:n});else LS.set('hg_personas',personas)}
+};
+
+/* ---------- estado ---------- */
+let user=LS.get('hg_user',null), view='inicio', cur=null, calM=new Date(), filtro={q:'',tipo:'',estado:'',sede:''}, iaOut={};
+const estA=a=>a.status==='Completado'?'Completado':(a.plazo&&a.plazo<hoy()?'Atrasado':(a.status||'Sin iniciar'));
+function estR(r){const a=(r.acciones||[]).filter(x=>x.que);if(!a.length)return (r.seguimiento||[]).some(s=>s.tipo==='nota')?'En curso':'Sin iniciar';
+  const e=a.map(estA);if(e.every(x=>x==='Completado'))return'Completado';if(e.includes('Atrasado'))return'Atrasado';if(e.some(x=>x!=='Sin iniciar'))return'En curso';return'Sin iniciar'}
+function nuevo(tipo){
+  const r={id:uid(),tipo,titulo:'',problema:'',sede:user.sede,sector:'',fecha:hoy(),kpis:[],creadoPor:user.nombre,creadoEn:new Date().toISOString(),actualizadoPor:user.nombre,actualizadoEn:new Date().toISOString(),acciones:[],seguimiento:[],datos:{}};
+  if(tipo!=='ish')r.datos.porques=[{w:['','','','',''],raiz:''}];
+  if(tipo==='ra')Object.assign(r.datos,{equipo:'',tipoAn:'Operación',clase:'',detecto:'',intervino:'',como:'',que:'',cuando:'',donde:'',quien:'',cual:'',sintomas:[{punto:'',res:'',accion:''}],est:{disp:'',aplic:'',impl:'',rev:'',entr:'',rep:''},analizo:'',responsable:''});
+  if(tipo==='ish'){r.datos.ish={};for(const k in M6)r.datos.ish[k]=[{t:''}];r.datos.raiz=''}
+  return r}
+
+/* ---------- asistencia sin IA ---------- */
+function chkProblema(t){t=t||'';return[
+ [t.trim().length>=40,'Describe el hecho con detalle suficiente'],
+ [/\d/.test(t),'Incluye un dato medible: %, cajas, pedidos, rutas, pesos'],
+ [/\d{1,2}[\/\-]\d{1,2}|semana|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ayer|hoy|turno|del d[ií]a|del \d/i.test(t),'Di cuándo ocurrió (fecha, semana o turno)'],
+ [/\bvs\b|meta|objetivo|target|frente a|est[aá]ndar|l[ií]mite/i.test(t),'Compara contra la meta o el estándar (ej. "4,2% vs meta 2,5%")'],
+ [!!t&&!/falta de|por culpa|descuido|porque|debido a/i.test(t),'Describe el síntoma, no la causa ni el culpable (evita "falta de", "porque", "por culpa")']]}
+function chkWhy(c){const w=c.w.map(x=>x.trim()),out=[],n=w.filter(Boolean).length,all=[...w,c.raiz].join(' ');
+  if(w.some((x,i)=>x&&w.slice(0,i).some(y=>!y)))out.push('Hay un porqué vacío en medio de la cadena: cada respuesta debe salir de la anterior.');
+  if(w.some((x,i)=>x&&w.indexOf(x)!==i))out.push('Dos porqués dicen lo mismo: avanza un nivel más profundo.');
+  if(/descuido|error humano|no quiso|culpa|irresponsab|pereza|falta de compromiso|no le import|se le olvid/i.test(all))out.push('Evita culpar a la persona. Pregunta: ¿qué del proceso, el estándar o el entrenamiento permitió que pasara?');
+  if(/^\s*falta de|no hay /i.test(c.raiz))out.push('"Falta de…" suele ser una solución disfrazada. Pregunta una vez más: ¿por qué falta?');
+  if(/clima|lluvia|tr[aá]fico|tranc[oó]n|orden p[uú]blico/i.test(c.raiz))out.push('La causa raíz parece estar fuera de tu control. Sigue hasta algo que el CD sí pueda cambiar.');
+  if(c.raiz.trim()&&n<3)out.push('Con menos de 3 porqués normalmente se llega al síntoma, no a la causa raíz.');
+  return out}
+function lectura(c,prob){const w=c.w.filter(x=>x.trim());if(w.length<2)return'';const ch=[...w].reverse();return (c.raiz?esc(c.raiz)+' → por lo tanto → ':'')+ch.map(esc).join(' → por lo tanto → ')+(prob?' → por lo tanto → <b>'+esc(prob.slice(0,90))+'</b>':'')}
+function sugKpi(r){const t=[r.titulo,r.problema,r.datos.que,r.datos.cual].join(' ').toLowerCase();const s=new Set();KW.forEach(([re,ks])=>{if(re.test(t))ks.forEach(k=>s.add(k))});return[...s].filter(k=>!r.kpis.includes(k)).slice(0,8)}
+function chkAcc(a){const o=[];if(!a.que)return o;if(/concientizar|sensibilizar|reforzar|estar pendiente|tener (m[aá]s )?cuidado|hacer seguimiento$|recordar/i.test(a.que+' '+a.como))o.push('Acción poco verificable: di qué se entrega (OPL, check, rutina, tablero) y cómo se comprueba.');if(!a.quien)o.push('Falta responsable (una persona, no un área).');if(!a.plazo)o.push('Falta fecha límite.');return o}
+
+/* ---------- IA (opcional) ---------- */
+async function ia(tarea,texto,key){
+  if(!AI_ENDPOINT)return toast('La IA aún no está conectada. Las guías y sugerencias automáticas siguen funcionando.');
+  if(!texto.trim())return toast('Escribe primero algo para que la IA lo revise.');
+  iaOut[key]={t:'Pensando…',tarea};paintIA();
+  try{const r=await fetch(AI_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tarea,texto,contexto:{herramienta:TOOLS[cur.tipo].n,problema:cur.problema,kpis:cur.kpis,sector:cur.sector}})});
+    const j=await r.json();iaOut[key]={t:j.texto||'Sin respuesta.',tarea,ok:true}}catch(e){iaOut[key]={t:'No se pudo conectar con la IA.',tarea}}
+  paintIA()}
+function paintIA(){document.querySelectorAll('[data-ia]').forEach(el=>{const o=iaOut[el.dataset.ia];el.innerHTML=o?`<div class="iabox"><b>Sugerencia IA</b>\n${esc(o.t)}<div class="noprint" style="margin-top:8px">${o.ok&&o.tarea==='redaccion'?`<button class="btn sm" data-act="iaUsar" data-k="${el.dataset.ia}">Usar este texto</button> `:''}<button class="ghost sm" data-act="iaNo" data-k="${el.dataset.ia}">Cerrar</button></div></div>`:''})}
+
+/* ---------- componentes ---------- */
+const inp=(p,ph='',type='text')=>`<input type="${type}" data-p="${p}" value="${esc(get(cur,p))}" placeholder="${esc(ph)}">`;
+const ta=(p,ph='')=>`<textarea data-p="${p}" rows="1" placeholder="${esc(ph)}">${esc(get(cur,p))}</textarea>`;
+const sel=(p,ops,vacio)=>`<select data-p="${p}">${vacio!=null?`<option value="">${vacio}</option>`:''}${ops.map(o=>`<option ${get(cur,p)===o?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+const fld=(l,h)=>`<div><label>${l}</label>${h}</div>`;
+const segm=(p,ops)=>`<span class="seg">${ops.map(o=>`<button data-act="setv" data-p="${p}" data-v="${o}" class="${get(cur,p)===o?'on':''}">${o}</button>`).join('')}</span>`;
+const badge=e=>`<span class="st ${cls(e)}">${e}</span>`;
+const dl=()=>`<datalist id="dlp">${personas.map(p=>`<option value="${esc(p)}">`).join('')}</datalist><datalist id="dlk">${KPIS.map(k=>`<option value="${esc(k)}">`).join('')}</datalist>`;
+
+/* ---------- vistas ---------- */
+function render(){
+  $('#nav').innerHTML=[['inicio','Inicio'],['lista','Herramientas'],['cal','Calendario']].map(([v,l])=>`<button data-go="${v}" class="${view===v?'on':''}">${l}</button>`).join('');
+  $('#modo').textContent=NUBE?'● En la nube':'● Modo local (este equipo)';
+  $('#quien').textContent=user?user.nombre+' · '+user.sede:'Identificarme';
+  if(!user)return login();
+  app.innerHTML=({inicio:vInicio,lista:vLista,cal:vCal,editor:vEditor})[view]();
+  app.querySelectorAll('textarea').forEach(grow);if(view==='editor'){asist();paintIA()}
+}
+function grow(t){t.style.height='auto';t.style.height=t.scrollHeight+2+'px'}
+function login(){
+  app.innerHTML=`<div class="modal"><div class="card"><h2>¿Quién eres?</h2><p class="tip">Tu nombre queda en la trazabilidad de cada herramienta que crees o actualices.</p>
+  <div class="grid" style="margin-top:10px">${dl()}<div><label>Nombre</label><input id="ln" list="dlp" placeholder="Escoge o escribe tu nombre" value="${esc(user?.nombre||'')}"></div>
+  <div><label>Sede</label><select id="ls">${SEDES.map(s=>`<option>${s}</option>`).join('')}</select></div>
+  <button class="btn" data-act="entrar">Entrar</button></div></div></div>`}
+function vInicio(){
+  const ab=records.filter(r=>estR(r)!=='Completado'),at=records.filter(r=>estR(r)==='Atrasado'),av=records.flatMap(r=>r.acciones||[]).filter(a=>a.que&&estA(a)==='Atrasado');
+  return `<h1>Hola, ${esc(user.nombre.split(' ')[0])}. ¿Qué herramienta vas a hacer hoy?</h1>
+  <div class="grid g4" style="margin-bottom:14px">${[[records.length,'Herramientas creadas'],[ab.length,'Abiertas'],[at.length,'Con atraso'],[av.length,'Acciones vencidas']].map(([n,l])=>`<div class="card" style="margin:0"><div class="kpiN">${n}</div><div class="kpiL">${l}</div></div>`).join('')}</div>
+  <div class="grid tools">${Object.entries(TOOLS).map(([k,t])=>`<div class="card tool" data-act="nuevo" data-t="${k}" style="margin:0"><b>${t.n}</b><span>${t.d}</span></div>`).join('')}
+  ${PRONTO.map(n=>`<div class="card tool off" style="margin:0"><b>${n}</b><span>Próximamente</span></div>`).join('')}</div>
+  ${!records.length&&!NUBE?`<p class="tip" style="margin-top:16px">¿Quieres ver cómo queda? <button class="ghost sm" data-act="demo">Cargar ejemplo de Rechazos</button></p>`:''}`}
+function vLista(){
+  const q=filtro.q.toLowerCase();
+  const rs=records.filter(r=>(!filtro.tipo||r.tipo===filtro.tipo)&&(!filtro.sede||r.sede===filtro.sede)&&(!filtro.estado||estR(r)===filtro.estado)&&(!q||[r.titulo,r.problema,r.creadoPor,...r.kpis].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.actualizadoEn.localeCompare(a.actualizadoEn));
+  const o=(k,ops,l)=>`<select data-f="${k}"><option value="">${l}</option>${ops.map(([v,t])=>`<option value="${v}" ${filtro[k]===v?'selected':''}>${t}</option>`).join('')}</select>`;
+  return `<h1>Herramientas realizadas</h1><div class="card"><div class="grid g4"><input data-f="q" placeholder="Buscar por título, KPI o persona…" value="${esc(filtro.q)}">
+  ${o('tipo',Object.entries(TOOLS).map(([k,t])=>[k,t.n]),'Todas las herramientas')}${o('estado',[...ESTADOS,'Atrasado'].map(e=>[e,e]),'Todos los estados')}${o('sede',SEDES.map(s=>[s,s]),'Todas las sedes')}</div></div>
+  <div class="card" style="overflow:auto"><table><tr><th>Herramienta</th><th>Título</th><th>KPI</th><th>Sede</th><th>Acciones</th><th>Estado</th><th>Última actualización</th></tr>
+  ${rs.map(r=>{const a=(r.acciones||[]).filter(x=>x.que);return`<tr class="row" data-act="abrir" data-id="${r.id}"><td>${TOOLS[r.tipo].n}</td><td><b>${esc(r.titulo||'(sin título)')}</b></td><td>${esc(r.kpis.slice(0,3).join(', '))}</td><td>${esc(r.sede)}</td><td>${a.filter(x=>x.status==='Completado').length}/${a.length}</td><td>${badge(estR(r))}</td><td>${fcorta(r.actualizadoEn.slice(0,10))}<br><small style="color:var(--mut)">${esc(r.actualizadoPor)}</small></td></tr>`}).join('')||'<tr><td colspan="7" style="color:var(--mut)">Aún no hay herramientas con ese filtro.</td></tr>'}</table></div>`}
+function eventos(){const ev=[];records.forEach(r=>{ev.push({d:r.fecha||r.creadoEn.slice(0,10),c:'c',l:'★ '+TOOLS[r.tipo].n+': '+(r.titulo||''),id:r.id});
+  (r.acciones||[]).forEach(a=>{if(a.que&&a.plazo)ev.push({d:a.plazo,c:cls(estA(a)),l:'⏱ '+a.que,id:r.id})});
+  (r.seguimiento||[]).forEach(s=>{if(s.tipo==='nota')ev.push({d:s.fecha.slice(0,10),c:'s',l:'✎ '+s.nota,id:r.id})})});return ev}
+function vCal(){
+  const y=calM.getFullYear(),m=calM.getMonth(),ini=new Date(y,m,1),off=(ini.getDay()+6)%7,ev=eventos(),cells=[];
+  for(let i=0;i<42;i++){const d=new Date(y,m,1-off+i),k=iso(d),es=ev.filter(e=>e.d===k);
+    cells.push(`<div class="day ${d.getMonth()!==m?'out':''} ${k===hoy()?'today':''}"><span class="d">${d.getDate()}</span>${es.slice(0,3).map(e=>`<span class="ev ${e.c}" data-act="abrir" data-id="${e.id}" title="${esc(e.l)}">${esc(e.l)}</span>`).join('')}${es.length>3?`<span style="color:var(--mut)">+${es.length-3} más</span>`:''}</div>`)}
+  return `<div class="top"><h1 style="margin:0;text-transform:capitalize">${ini.toLocaleDateString('es-CO',{month:'long',year:'numeric'})}</h1><div class="sp"></div><button class="ghost" data-act="mes" data-n="-1">←</button><button class="ghost" data-act="mes" data-n="0">Hoy</button><button class="ghost" data-act="mes" data-n="1">→</button></div>
+  <div class="chips"><span class="ev c">★ Herramienta creada</span><span class="ev Sin-iniciar">⏱ Acción sin iniciar</span><span class="ev En-curso">⏱ En curso</span><span class="ev Completado">⏱ Completada</span><span class="ev Atrasado">⏱ Atrasada</span><span class="ev s">✎ Seguimiento</span></div>
+  <div class="cal">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`<div class="dh">${d}</div>`).join('')}${cells.join('')}</div>`}
+
+function secWhy(){return `<div class="card"><h2>${cur.tipo==='ra'?'Búsqueda de causa raíz · ':''}5 Porqués</h2><p class="tip">Parte del problema y pregunta "¿por qué?" sobre la respuesta anterior. No siempre son 5: detente cuando llegues a algo que el CD puede cambiar.</p>
+  ${cur.datos.porques.map((c,i)=>`<div style="margin-top:12px"><div class="why">${c.w.map((_,j)=>`<div><span class="n">${j+1}.º ¿POR QUÉ?</span>${ta(`datos.porques.${i}.w.${j}`,j?'¿Por qué pasó lo anterior?':'¿Por qué ocurrió el problema?')}</div>`).join('')}<div><span class="n">CAUSA RAÍZ</span>${ta(`datos.porques.${i}.raiz`,'Causa que, si se elimina, evita que se repita')}</div></div>
+  <div data-as="why${i}"></div>${cur.datos.porques.length>1?`<button class="ghost sm noprint" data-act="delWhy" data-i="${i}">Quitar esta cadena</button>`:''}</div>`).join('')}
+  <div class="noprint" style="margin-top:10px"><button class="ghost sm" data-act="addWhy">+ Otra cadena de porqués</button> <button class="ghost sm" data-act="iaWhy">✦ Revisar mi análisis con IA</button></div><div data-ia="why"></div></div>`}
+function secIsh(){return `<div class="card"><h2>Causas por categoría (6M)</h2><p class="tip">Escribe causas posibles, no soluciones. Una idea por línea.</p><div class="grid g3" style="margin-top:8px">
+  ${Object.entries(M6).map(([k,[n,q]])=>`<div><h3 style="margin-top:0">${n}</h3><p class="tip" style="margin:0 0 6px">${q}</p>${cur.datos.ish[k].map((c,i)=>`<div style="display:flex;gap:4px;margin-bottom:4px">${inp(`datos.ish.${k}.${i}.t`,'Causa posible')}<button class="x noprint" data-act="delC" data-k="${k}" data-i="${i}">×</button></div>`).join('')}<button class="ghost sm noprint" data-act="addC" data-k="${k}">+ causa</button></div>`).join('')}</div>
+  <div class="noprint" style="margin-top:10px"><button class="ghost sm" data-act="iaIsh">✦ Sugerir causas con IA</button></div><div data-ia="ish"></div>
+  <div id="fish" style="margin-top:14px;overflow:auto"></div>
+  <div style="margin-top:10px">${fld('Causa(s) priorizada(s) / causa raíz',ta('datos.raiz','De todas las causas, ¿cuál explica la mayor parte del problema? Valídala con datos.'))}</div></div>`}
+function fish(){const W=900,H=420,xs=[150,370,590],ks=Object.keys(M6),t=s=>esc(s.length>30?s.slice(0,29)+'…':s);let s=`<svg viewBox="0 0 ${W} ${H}" style="min-width:680px;width:100%"><g stroke="currentColor" stroke-width="2" fill="none"><line x1="30" y1="210" x2="740" y2="210"/><path d="M740 198 L764 210 L740 222Z" fill="currentColor"/><rect x="766" y="160" width="128" height="100" rx="8" stroke="var(--acc)"/>`;
+  ks.forEach((k,i)=>{const up=i<3,x=xs[i%3],y=up?45:375;s+=`<line x1="${x}" y1="${y}" x2="${x+90}" y2="210"/>`});s+='</g>';
+  ks.forEach((k,i)=>{const up=i<3,x=xs[i%3],y=up?45:375;s+=`<text x="${x}" y="${up?32:398}" font-weight="700" font-size="13" text-anchor="middle" style="fill:var(--acc)">${M6[k][0]}</text>`;
+    cur.datos.ish[k].filter(c=>c.t.trim()).slice(0,5).forEach((c,j)=>{const yy=up?70+j*26:350-j*26,xx=x+(yy-y)*90/(210-y);s+=`<text x="${xx-8}" y="${yy}" font-size="11.5" text-anchor="end">${t(c.t)}</text>`})});
+  const p=(cur.titulo||cur.problema||'Problema').slice(0,70).match(/.{1,17}(\s|$)/g)||[];p.slice(0,5).forEach((l,i)=>s+=`<text x="830" y="${186+i*15}" font-size="12" font-weight="600" text-anchor="middle">${esc(l.trim())}</text>`);return s+'</svg>'}
+function secRA1(){const d='datos.';return `<div class="grid g4" style="margin-top:12px">${fld('Equipo (si aplica)',inp(d+'equipo','Ej. camión XYZ-123, montacarga 4'))}${fld('Tipo de anomalía',sel(d+'tipoAn',['Operación','Calidad','Mantenimiento','Otro']))}<div><label>Anormalidad</label>${segm(d+'clase',['Accidental','Repetitivo'])}</div>${fld('¿Cómo se detectó?',inp(d+'como','Ej. Reunión diaria de logística'))}</div>
+  <div class="grid g2" style="margin-top:12px">${fld('Detectó',inp(d+'detecto','Quién lo detectó')).replace('<input','<input list="dlp"')}${fld('Intervino',inp(d+'intervino','Quiénes participaron en el análisis'))}</div>`}
+function secRA5W(){const d='datos.';return `<h3>Las 5 preguntas</h3><div class="grid g5">${fld('¿Qué?',ta(d+'que','Qué se desvió'))}${fld('¿Cuándo?',ta(d+'cuando','Fecha, semana, turno'))}${fld('¿Dónde?',ta(d+'donde','Ruta, zona, área, proceso'))}${fld('¿Quién?',ta(d+'quien','Equipo o rol involucrado'))}${fld('¿Cuál?',ta(d+'cual','Indicador, producto o cliente'))}</div>
+  <button class="ghost sm noprint" style="margin-top:8px" data-act="armar">↑ Armar el problema con estas respuestas</button>`}
+function secRA2(){const q=[['disp','¿Está disponible el SOP/OPL?'],['aplic','¿Es aplicable el SOP/OPL?'],['impl','¿Se está implementando?'],['rev','¿Necesita ser revisado?'],['entr','¿Necesita entrenamiento?'],['rep','¿Se ha repetido en los últimos meses?']];
+  return `<div class="card"><h2>Acciones correctivas para eliminar el síntoma</h2><p class="tip">Lo que se hizo de inmediato para contener el problema (todavía no es la causa raíz).</p>
+  ${cur.datos.sintomas.map((s,i)=>`<div class="grid" style="grid-template-columns:2fr .7fr 2fr auto;margin-top:8px">${ta(`datos.sintomas.${i}.punto`,'¿Qué punto se examinó?')}${sel(`datos.sintomas.${i}.res`,['OK','NO OK'],'Resultado')}${ta(`datos.sintomas.${i}.accion`,'¿Qué acción se tomó?')}<button class="x noprint" data-act="delS" data-i="${i}">×</button></div>`).join('')}
+  <button class="ghost sm noprint" style="margin-top:8px" data-act="addS">+ Punto examinado</button></div>
+  <div class="card"><h2>Estandarización</h2><div class="grid g3">${q.map(([k,l])=>`<div><label>${l}</label>${segm('datos.est.'+k,['Sí','No'])}</div>`).join('')}</div><div data-as="est"></div></div>`}
+function secAcc(){return `<div class="card"><h2>Acciones para que no ocurra de nuevo</h2><p class="tip">Cada acción debe atacar una causa raíz, tener un responsable con nombre y una fecha.</p>
+  ${cur.acciones.map((a,i)=>`<div class="act"><div><label>Tipo</label>${sel(`acciones.${i}.cat`,CATS)}</div><div><label>¿Qué?</label>${ta(`acciones.${i}.que`,'Qué se va a hacer')}</div><div><label>¿Cómo?</label>${ta(`acciones.${i}.como`,'Cómo se hará y cómo se verifica')}</div><div><label>¿Quién?</label>${inp(`acciones.${i}.quien`,'Responsable').replace('<input','<input list="dlp"')}</div><div><label>Plazo</label>${inp(`acciones.${i}.plazo`,'','date')}</div><div><label>Estado ${estA(a)==='Atrasado'?badge('Atrasado'):''}</label>${sel(`acciones.${i}.status`,ESTADOS)}</div><button class="x noprint" data-act="delA" data-i="${i}">×</button><div data-as="acc${i}" style="grid-column:1/-1"></div></div>`).join('')}
+  <button class="ghost sm noprint" data-act="addA">+ Agregar acción</button></div>`}
+function secSeg(){return `<div class="card"><h2>Seguimiento y trazabilidad</h2><div class="noprint" style="display:flex;gap:8px;margin-bottom:12px"><textarea id="nota" rows="1" placeholder="¿Qué avance hubo? Ej. Se validó con ventas el listado de clientes venta cero…"></textarea><button class="btn" data-act="nota">Registrar</button></div>
+  <div class="tl">${[...cur.seguimiento].reverse().map(s=>`<div><small>${fcorta(s.fecha.slice(0,10))} ${s.fecha.slice(11,16)} · ${esc(s.autor)}</small><br>${s.tipo==='nota'?esc(s.nota):`<i style="color:var(--mut)">${esc(s.nota)}</i>`}</div>`).join('')||'<small style="color:var(--mut)">Sin movimientos todavía. Se registran al guardar.</small>'}</div></div>`}
+function vEditor(){const t=TOOLS[cur.tipo],ra=cur.tipo==='ra';
+  return dl()+`<div class="top noprint"><button class="ghost" data-go="lista">← Volver</button><h1 style="margin:0">${t.n}</h1>${badge(estR(cur))}<div class="sp"></div><button class="ghost" data-act="imprimir">Imprimir / PDF</button><button class="ghost" data-act="borrar">Eliminar</button><button class="btn" data-act="guardar">Guardar</button></div>
+  <div class="card"><h2>Identificación</h2><div class="grid g4">${fld(ra?'Anormalidad':'Título',inp('titulo',ra?'Ej. Rechazos':'Ej. Pedidos rechazados semana 4'))}${fld('Sede',sel('sede',SEDES))}${fld('Sector',sel('sector',SECTORES,'Selecciona…'))}${fld('Fecha',inp('fecha','','date'))}</div>${ra?secRA1():''}
+  <p class="tip">Creado por ${esc(cur.creadoPor)} el ${fcorta(cur.creadoEn.slice(0,10))} · Última actualización: ${esc(cur.actualizadoPor)}</p></div>
+  <div class="card"><h2>Problema</h2>${ta('problema','Ej. Rechazo de 4,2% vs meta 2,5% del 13 al 18 de octubre en las rutas de Yopal, 310 cajas devueltas')}
+  <div class="noprint" style="margin-top:8px"><button class="ghost sm" data-act="iaProb">✦ Mejorar redacción con IA</button></div><div data-ia="prob"></div><div data-as="prob"></div>${ra?secRA5W():''}</div>
+  <div class="card"><h2>KPI / PI impactado</h2><div class="chips">${cur.kpis.map((k,i)=>`<span class="chip">${esc(k)}<button class="x noprint" data-act="delK" data-i="${i}">×</button></span>`).join('')||'<span class="tip" style="margin:0">Ninguno seleccionado.</span>'}</div>
+  <input id="kin" list="dlk" class="noprint" placeholder="Busca un KPI y presiona Enter…" style="max-width:380px"><div data-as="kpi"></div></div>
+  ${ra?secRA2():''}${cur.tipo==='ish'?secIsh():secWhy()}${secAcc()}${ra?`<div class="card"><div class="grid g2">${fld('Analizó',inp('datos.analizo','Nombre')).replace('<input','<input list="dlp"')}${fld('Supervisor / responsable del área',inp('datos.responsable','Nombre')).replace('<input','<input list="dlp"')}</div></div>`:''}${secSeg()}`}
+
+// Refresca las ayudas sin redibujar el formulario
+function asist(){const A=k=>app.querySelector(`[data-as="${k}"]`);let e;
+  if(e=A('prob')){const c=chkProblema(cur.problema),ok=c.filter(x=>x[0]).length;e.innerHTML=`<div class="assist"><b>Guía de redacción · ${ok}/${c.length}</b><ul>${c.map(([y,l])=>`<li class="${y?'y':'n'}">${y?'✓':'○'} ${l}</li>`).join('')}</ul></div>`}
+  if(e=A('kpi')){const s=sugKpi(cur);e.innerHTML=s.length?`<div class="assist noprint"><b>KPIs sugeridos según lo que escribiste</b> (toca para agregar)<div class="chips">${s.map(k=>`<span class="chip sug" data-act="addK" data-k="${esc(k)}">+ ${esc(k)}</span>`).join('')}</div></div>`:(cur.kpis.length?'':'<p class="tip">Escribe el problema y aquí aparecerán sugerencias de KPI.</p>')}
+  (cur.datos.porques||[]).forEach((c,i)=>{if(e=A('why'+i)){const w=chkWhy(c),l=lectura(c,cur.problema);e.innerHTML=(w.length||l)?`<div class="assist">${w.map(x=>`<div class="warnl">⚠ ${x}</div>`).join('')}${l?`<div style="margin-top:4px"><b>Prueba de lógica (léelo al revés):</b> ${l}<br><span style="color:var(--mut)">Si alguna flecha no tiene sentido, ese porqué está mal encadenado.</span></div>`:''}</div>`:''}});
+  if(e=A('est')){const s=cur.datos.est,o=[];if(s.disp==='No')o.push('No hay estándar: incluye una acción para crear el SOP/OPL.');if(s.disp==='Sí'&&s.impl==='No')o.push('El estándar existe pero no se cumple: revisa rutina de verificación y entrenamiento.');if(s.rev==='Sí')o.push('Agrega una acción de "Correcciones al diseño" para actualizar el estándar.');if(s.entr==='Sí')o.push('Agrega una acción de "Capacitaciones" y actualiza la matriz de habilidades.');if(s.rep==='Sí')o.push('Anormalidad repetitiva: las acciones anteriores no atacaron la causa raíz; revisa el análisis previo.');e.innerHTML=o.length?`<div class="assist">${o.map(x=>`<div>→ ${x}</div>`).join('')}</div>`:''}
+  cur.acciones.forEach((a,i)=>{if(e=A('acc'+i)){const w=chkAcc(a);e.innerHTML=w.length?`<div class="assist">${w.map(x=>`<div class="warnl">⚠ ${x}</div>`).join('')}</div>`:''}});
+  if(e=$('#fish'))e.innerHTML=fish()}
+
+/* ---------- acciones ---------- */
+async function guardar(silencio){
+  if(!cur.titulo.trim())return toast('Ponle un título antes de guardar.');
+  const nuevoR=!records.some(r=>r.id===cur.id);cur.actualizadoPor=user.nombre;cur.actualizadoEn=new Date().toISOString();
+  const u=cur.seguimiento[cur.seguimiento.length-1];
+  if(nuevoR)cur.seguimiento.push({fecha:cur.actualizadoEn,autor:user.nombre,tipo:'sis',nota:'Creó la herramienta'});
+  else if(!silencio&&!(u&&u.tipo==='sis'&&u.autor===user.nombre&&u.fecha.slice(0,10)===hoy()))cur.seguimiento.push({fecha:cur.actualizadoEn,autor:user.nombre,tipo:'sis',nota:'Actualizó la herramienta'});
+  try{await Store.save(cur);toast('Guardado ✓')}catch(e){toast('No se pudo guardar: '+e.message)}render()}
+const ACT={
+  entrar(){const n=$('#ln').value.trim();if(!n)return toast('Escribe tu nombre.');user={nombre:n,sede:$('#ls').value};LS.set('hg_user',user);Store.persona(n);render()},
+  nuevo(d){cur=nuevo(d.t);iaOut={};view='editor';render();scrollTo(0,0)},
+  abrir(d){const r=records.find(x=>x.id===d.id);if(!r)return;cur=JSON.parse(JSON.stringify(r));iaOut={};view='editor';render();scrollTo(0,0)},
+  guardar(){guardar()},imprimir(){print()},
+  async borrar(){if(!records.some(r=>r.id===cur.id)){view='lista';return render()}if(!$('#conf')){const b=app.querySelector('[data-act=borrar]');b.textContent='¿Seguro? Toca otra vez';b.id='conf';return}await Store.del(cur.id);view='lista';render()},
+  setv(d){set(cur,d.p,get(cur,d.p)===d.v?'':d.v);render()},
+  addWhy(){cur.datos.porques.push({w:['','','','',''],raiz:''});render()},delWhy(d){cur.datos.porques.splice(+d.i,1);render()},
+  addC(d){cur.datos.ish[d.k].push({t:''});render()},delC(d){const a=cur.datos.ish[d.k];a.splice(+d.i,1);if(!a.length)a.push({t:''});render()},
+  addS(){cur.datos.sintomas.push({punto:'',res:'',accion:''});render()},delS(d){cur.datos.sintomas.splice(+d.i,1);render()},
+  addA(){cur.acciones.push({id:uid(),cat:CATS[0],que:'',como:'',quien:'',plazo:'',status:'Sin iniciar'});render()},delA(d){cur.acciones.splice(+d.i,1);render()},
+  addK(d){if(!cur.kpis.includes(d.k))cur.kpis.push(d.k);render()},delK(d){cur.kpis.splice(+d.i,1);render()},
+  armar(){const x=cur.datos,p=[x.que,x.cual&&'('+x.cual+')',x.donde&&'en '+x.donde,x.cuando&&'· '+x.cuando,x.quien&&'· involucra a '+x.quien].filter(Boolean).join(' ');if(!p)return toast('Responde primero las 5 preguntas.');cur.problema=p;render()},
+  async nota(){const n=$('#nota').value.trim();if(!n)return toast('Escribe el avance.');cur.seguimiento.push({fecha:new Date().toISOString(),autor:user.nombre,tipo:'nota',nota:n});await guardar(true)},
+  mes(d){calM=+d.n?new Date(calM.getFullYear(),calM.getMonth()+ +d.n,1):new Date();render()},
+  iaProb(){ia('redaccion',cur.problema,'prob')},
+  iaWhy(){ia('porques',cur.datos.porques.map((c,i)=>`Cadena ${i+1}: `+c.w.filter(Boolean).map((w,j)=>`${j+1}) ${w}`).join(' | ')+' | Causa raíz: '+c.raiz).join('\n'),'why')},
+  iaIsh(){ia('causas',cur.problema||cur.titulo,'ish')},
+  iaUsar(d){cur.problema=iaOut[d.k].t;delete iaOut[d.k];render()},iaNo(d){delete iaOut[d.k];paintIA()},
+  async demo(){const r=nuevo('ra');Object.assign(r,{titulo:'Rechazos',sede:'Yopal',sector:'Distribución',fecha:hoy(),problema:'Desviación de rechazo del 13 al 18 de octubre: 4,1% vs meta 2,5% en rutas de Yopal',kpis:['OTIF','In Full','Rechazo','On Time']});
+    Object.assign(r.datos,{clase:'Repetitivo',como:'Reunión diaria de logística',que:'Desviación de rechazo',cuando:'13 al 18 de octubre',donde:'Rutas Yopal',quien:'Equipo de líderes',cual:'Rechazos',sintomas:[{punto:'Clientes manifiestan que cancelaron el pedido desde la app',res:'OK',accion:'Llamada de validación'},{punto:'Clientes no cuentan con el envase',res:'OK',accion:'Aviso a ventas'}]});
+    r.datos.porques=[{w:['Clientes no recibieron el pedido','No tenían dinero ni envase al momento de la entrega','No sabían qué día llegaba el pedido','El vendedor no confirma fecha de entrega al tomar el pedido','No existe paso de confirmación en la rutina de venta'],raiz:'La rutina de toma de pedido no incluye confirmar fecha, valor y envase con el cliente'}];
+    const p=n=>iso(new Date(Date.now()+n*864e5));r.acciones=[{id:uid(),cat:CATS[0],que:'Llamadas aleatorias a clientes rechazados del día D-1',como:'Servicio al cliente llama 10 clientes diarios y registra motivo',quien:'Servicio al cliente',plazo:p(3),status:'En curso'},{id:uid(),cat:CATS[2],que:'OPL de confirmación de pedido',como:'Crear OPL y entrenar a fuerza de ventas',quien:'',plazo:p(-2),status:'Sin iniciar'}];
+    r.seguimiento=[{fecha:new Date().toISOString(),autor:user.nombre,tipo:'sis',nota:'Creó la herramienta (ejemplo)'}];await Store.save(r);render()}
+};
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){view=g.dataset.go;return render()}const a=e.target.closest('[data-act]');if(a&&ACT[a.dataset.act])ACT[a.dataset.act](a.dataset)});
+app.addEventListener('input',e=>{const t=e.target;if(t.dataset.p){set(cur,t.dataset.p,t.value);if(t.tagName==='TEXTAREA')grow(t);asist()}else if(t.dataset.f==='q'){filtro.q=t.value;const p=t.selectionStart;render();const n=app.querySelector('[data-f=q]');n.focus();n.setSelectionRange(p,p)}else if(t.id==='nota')grow(t)});
+app.addEventListener('change',e=>{const t=e.target;if(t.dataset.f&&t.dataset.f!=='q'){filtro[t.dataset.f]=t.value;render()}else if(t.id==='kin'){const k=KPIS.find(x=>x.toLowerCase()===t.value.trim().toLowerCase());if(k){ACT.addK({k})}else if(t.value.trim())toast('Escoge un KPI de la lista.')}else if(t.dataset.p&&(t.tagName==='SELECT'||t.type==='date')&&t.dataset.p.startsWith('acciones'))render()});
+$('#tema').onclick=()=>{const d=document.documentElement,n=d.dataset.theme==='dark'?'light':'dark';d.dataset.theme=n;LS.set('hg_tema',n)};
+$('#quien').onclick=()=>{const u=user;user=null;render();if(u)$('#ln').value=u.nombre};
+document.documentElement.dataset.theme=LS.get('hg_tema','light');
+Store.init();render();
+</script>
+</body>
+</html>
