@@ -236,7 +236,10 @@ function login(){
   <button class="btn" data-act="entrar">Entrar</button></div></div></div>`}
 function vInicio(){
   const ab=records.filter(r=>estR(r)!=='Completado'),at=records.filter(r=>estR(r)==='Atrasado'),av=records.flatMap(r=>r.acciones||[]).filter(a=>a.que&&estA(a)==='Atrasado');
-  return `<h1>Hola, ${esc(user.nombre.split(' ')[0])}. ¿Qué herramienta vas a hacer hoy?</h1>
+  const b=LS.get('hg_borrador',null);
+  return `${b&&b.id?`<div class="card" style="border-left:4px solid var(--warn)"><b>Tienes cambios sin guardar</b> en ${TOOLS[b.tipo]?TOOLS[b.tipo].n:'una herramienta'}${b.titulo?': «'+esc(b.titulo)+'»':' (sin título)'} · ${fcorta((b.actualizadoEn||'').slice(0,10))}
+  <div style="margin-top:8px"><button class="btn sm" data-act="recuperar">Recuperar y seguir editando</button> <button class="ghost sm" data-act="descartar">Descartar</button></div></div>`:''}
+  <h1>Hola, ${esc(user.nombre.split(' ')[0])}. ¿Qué herramienta vas a hacer hoy?</h1>
   <div class="grid g4" style="margin-bottom:14px">${[[records.length,'Herramientas creadas'],[ab.length,'Abiertas'],[at.length,'Con atraso'],[av.length,'Acciones vencidas']].map(([n,l])=>`<div class="card" style="margin:0"><div class="kpiN">${n}</div><div class="kpiL">${l}</div></div>`).join('')}</div>
   <div class="grid tools">${Object.entries(TOOLS).map(([k,t])=>`<div class="card tool" data-act="nuevo" data-t="${k}" style="margin:0"><b>${t.n}</b><span>${t.d}</span></div>`).join('')}
   ${PRONTO.map(n=>`<div class="card tool off" style="margin:0"><b>${n}</b><span>Próximamente</span></div>`).join('')}</div>
@@ -289,7 +292,7 @@ function secAcc(){return `<div class="card"><h2>Acciones para que no ocurra de n
 function secSeg(){return `<div class="card"><h2>Seguimiento y trazabilidad</h2><div class="noprint" style="display:flex;gap:8px;margin-bottom:12px"><textarea id="nota" rows="1" placeholder="¿Qué avance hubo? Ej. Se validó con ventas el listado de clientes venta cero…"></textarea><button class="btn" data-act="nota">Registrar</button></div>
   <div class="tl">${[...cur.seguimiento].reverse().map(s=>`<div><small>${fcorta(s.fecha.slice(0,10))} ${s.fecha.slice(11,16)} · ${esc(s.autor)}</small><br>${s.tipo==='nota'?esc(s.nota):`<i style="color:var(--mut)">${esc(s.nota)}</i>`}</div>`).join('')||'<small style="color:var(--mut)">Sin movimientos todavía. Se registran al guardar.</small>'}</div></div>`}
 function vEditor(){const t=TOOLS[cur.tipo],ra=cur.tipo==='ra';
-  return dl()+`<div class="top noprint"><button class="ghost" data-go="lista">← Volver</button><h1 style="margin:0">${t.n}</h1>${badge(estR(cur))}<div class="sp"></div><button class="ghost" data-act="imprimir">Imprimir / PDF</button><button class="ghost" data-act="borrar">Eliminar</button><button class="btn" data-act="guardar">Guardar</button></div>
+  return dl()+`<div class="top noprint"><button class="ghost" data-go="lista">← Volver</button><h1 style="margin:0">${t.n}</h1>${badge(estR(cur))}<div class="sp"></div><span id="estadoG" class="tip" style="margin:0">${esc(estadoTxt||'Se guarda automáticamente mientras escribes')}</span><button class="ghost" data-act="imprimir">Imprimir / PDF</button><button class="ghost" data-act="borrar">Eliminar</button><button class="btn" data-act="guardar">Guardar ahora</button></div>
   <div class="card"><h2>Identificación</h2><div class="grid g4">${fld(ra?'Anormalidad':'Título',inp('titulo',ra?'Ej. Rechazos':'Ej. Pedidos rechazados semana 4'))}${fld('Sede',sel('sede',SEDES))}${fld('Sector',sel('sector',SECTORES,'Selecciona…'))}${fld('Fecha',inp('fecha','','date'))}</div>${ra?secRA1():''}
   <p class="tip">Creado por ${esc(cur.creadoPor)} el ${fcorta(cur.creadoEn.slice(0,10))} · Última actualización: ${esc(cur.actualizadoPor)}</p></div>
   <div class="card"><h2>Problema</h2>${ta('problema','Ej. Rechazo de 4,2% vs meta 2,5% del 13 al 18 de octubre en las rutas de Yopal, 310 cajas devueltas')}
@@ -308,19 +311,34 @@ function asist(){const A=k=>app.querySelector(`[data-as="${k}"]`);let e;
   if(e=$('#fish'))e.innerHTML=fish()}
 
 /* ---------- acciones ---------- */
-async function guardar(silencio){
-  if(!cur.titulo.trim())return toast('Ponle un título antes de guardar.');
+/* ---------- guardado (manual y automático) ---------- */
+let dirty=false,autoT=null,estadoTxt='';
+async function persist(silencio){
   const nuevoR=!records.some(r=>r.id===cur.id);cur.actualizadoPor=user.nombre;cur.actualizadoEn=new Date().toISOString();
   const u=cur.seguimiento[cur.seguimiento.length-1];
   if(nuevoR)cur.seguimiento.push({fecha:cur.actualizadoEn,autor:user.nombre,tipo:'sis',nota:'Creó la herramienta'});
   else if(!silencio&&!(u&&u.tipo==='sis'&&u.autor===user.nombre&&u.fecha.slice(0,10)===hoy()))cur.seguimiento.push({fecha:cur.actualizadoEn,autor:user.nombre,tipo:'sis',nota:'Actualizó la herramienta'});
-  try{await Store.save(cur);toast('Guardado ✓')}catch(e){toast('No se pudo guardar: '+e.message)}render()}
+  await Store.save(cur)}
+function estadoG(t){estadoTxt=t;const e=$('#estadoG');if(e)e.textContent=t}
+// Se llama en cada cambio: copia inmediata en este equipo + guardado en la nube a los 1,5 s de dejar de escribir
+function marcar(){if(view!=='editor'||!cur)return;dirty=true;LS.set('hg_borrador',cur);estadoG('Cambios sin guardar…');clearTimeout(autoT);autoT=setTimeout(autoGuardar,1500)}
+async function autoGuardar(){clearTimeout(autoT);if(!dirty||!cur)return;
+  if(!cur.titulo.trim()){estadoG('Borrador guardado en este equipo · ponle título para guardarlo en la nube');return}
+  dirty=false;estadoG('Guardando…');
+  try{await persist(false);LS.set('hg_borrador',null);estadoG('✓ Guardado automáticamente '+new Date().toTimeString().slice(0,5))}
+  catch(e){dirty=true;estadoG('⚠ Sin conexión, reintentando… (tus cambios están en este equipo)');autoT=setTimeout(autoGuardar,5000)}}
+async function guardar(silencio){
+  if(!cur.titulo.trim())return toast('Ponle un título antes de guardar.');
+  clearTimeout(autoT);dirty=false;
+  try{await persist(silencio);LS.set('hg_borrador',null);estadoTxt='✓ Guardado '+new Date().toTimeString().slice(0,5);toast('Guardado ✓')}catch(e){dirty=true;toast('No se pudo guardar: '+e.message)}render()}
 const ACT={
   entrar(){const n=$('#ln').value.trim();if(!n)return toast('Escribe tu nombre.');user={nombre:n,sede:$('#ls').value};LS.set('hg_user',user);Store.persona(n);render()},
-  nuevo(d){cur=nuevo(d.t);iaOut={};view='editor';render();scrollTo(0,0)},
-  abrir(d){const r=records.find(x=>x.id===d.id);if(!r)return;cur=JSON.parse(JSON.stringify(r));iaOut={};view='editor';render();scrollTo(0,0)},
+  nuevo(d){cur=nuevo(d.t);iaOut={};estadoTxt='';dirty=false;view='editor';render();scrollTo(0,0)},
+  abrir(d){const r=records.find(x=>x.id===d.id);if(!r)return;const b=LS.get('hg_borrador',null);cur=JSON.parse(JSON.stringify(b&&b.id===r.id?b:r));iaOut={};estadoTxt=b&&b.id===r.id?'Se recuperaron cambios sin guardar':'';dirty=false;view='editor';render();scrollTo(0,0);if(b&&b.id===r.id)marcar()},
+  recuperar(){const b=LS.get('hg_borrador',null);if(!b)return;cur=b;iaOut={};estadoTxt='Borrador recuperado';view='editor';render();scrollTo(0,0);marcar()},
+  descartar(){if(!$('#confD')){const x=app.querySelector('[data-act=descartar]');x.textContent='¿Seguro? Se pierden esos cambios. Toca otra vez';x.id='confD';return}LS.set('hg_borrador',null);render()},
   guardar(){guardar()},imprimir(){print()},
-  async borrar(){if(!records.some(r=>r.id===cur.id)){view='lista';return render()}if(!$('#conf')){const b=app.querySelector('[data-act=borrar]');b.textContent='¿Seguro? Toca otra vez';b.id='conf';return}await Store.del(cur.id);view='lista';render()},
+  async borrar(){if(!records.some(r=>r.id===cur.id)){view='lista';return render()}if(!$('#conf')){const b=app.querySelector('[data-act=borrar]');b.textContent='¿Seguro? Toca otra vez';b.id='conf';return}await Store.del(cur.id);clearTimeout(autoT);dirty=false;LS.set('hg_borrador',null);view='lista';render()},
   setv(d){set(cur,d.p,get(cur,d.p)===d.v?'':d.v);render()},
   addWhy(){cur.datos.porques.push({w:['','','','',''],raiz:''});render()},delWhy(d){cur.datos.porques.splice(+d.i,1);render()},
   addC(d){cur.datos.ish[d.k].push({t:''});render()},delC(d){const a=cur.datos.ish[d.k];a.splice(+d.i,1);if(!a.length)a.push({t:''});render()},
@@ -341,9 +359,12 @@ const ACT={
     const p=n=>iso(new Date(Date.now()+n*864e5));r.acciones=[{id:uid(),cat:CATS[0],que:'Llamadas aleatorias a clientes rechazados del día D-1',como:'Servicio al cliente llama 10 clientes diarios y registra motivo',quien:'Servicio al cliente',plazo:p(3),status:'En curso'},{id:uid(),cat:CATS[2],que:'OPL de confirmación de pedido',como:'Crear OPL y entrenar a fuerza de ventas',quien:'',plazo:p(-2),status:'Sin iniciar'}];
     r.seguimiento=[{fecha:new Date().toISOString(),autor:user.nombre,tipo:'sis',nota:'Creó la herramienta (ejemplo)'}];await Store.save(r);render()}
 };
-document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){view=g.dataset.go;return render()}const a=e.target.closest('[data-act]');if(a&&ACT[a.dataset.act])ACT[a.dataset.act](a.dataset)});
-app.addEventListener('input',e=>{const t=e.target;if(t.dataset.p){set(cur,t.dataset.p,t.value);if(t.tagName==='TEXTAREA')grow(t);asist()}else if(t.dataset.f==='q'){filtro.q=t.value;const p=t.selectionStart;render();const n=app.querySelector('[data-f=q]');n.focus();n.setSelectionRange(p,p)}else if(t.id==='nota')grow(t)});
-app.addEventListener('change',e=>{const t=e.target;if(t.dataset.f&&t.dataset.f!=='q'){filtro[t.dataset.f]=t.value;render()}else if(t.id==='kin'){const k=KPIS.find(x=>x.toLowerCase()===t.value.trim().toLowerCase());if(k){ACT.addK({k})}else if(t.value.trim())toast('Escoge un KPI de la lista.')}else if(t.dataset.p&&(t.tagName==='SELECT'||t.type==='date')&&t.dataset.p.startsWith('acciones'))render()});
+const EDITA=new Set(['setv','addWhy','delWhy','addC','delC','addS','delS','addA','delA','addK','delK','armar','iaUsar']);
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){if(view==='editor')autoGuardar();view=g.dataset.go;return render()}const a=e.target.closest('[data-act]');if(a&&ACT[a.dataset.act]){const n=a.dataset.act;ACT[n](a.dataset);if(view==='editor'&&EDITA.has(n))marcar()}});
+window.addEventListener('beforeunload',e=>{if(view==='editor'&&dirty){autoGuardar();e.preventDefault();e.returnValue=''}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&view==='editor')autoGuardar()});
+app.addEventListener('input',e=>{const t=e.target;if(t.dataset.p){set(cur,t.dataset.p,t.value);if(t.tagName==='TEXTAREA')grow(t);asist();marcar()}else if(t.dataset.f==='q'){filtro.q=t.value;const p=t.selectionStart;render();const n=app.querySelector('[data-f=q]');n.focus();n.setSelectionRange(p,p)}else if(t.id==='nota')grow(t)});
+app.addEventListener('change',e=>{const t=e.target;if(t.dataset.f&&t.dataset.f!=='q'){filtro[t.dataset.f]=t.value;render()}else if(t.id==='kin'){const k=KPIS.find(x=>x.toLowerCase()===t.value.trim().toLowerCase());if(k){ACT.addK({k});marcar()}else if(t.value.trim())toast('Escoge un KPI de la lista.')}else if(t.dataset.p&&(t.tagName==='SELECT'||t.type==='date')&&t.dataset.p.startsWith('acciones'))render()});
 $('#tema').onclick=()=>{const d=document.documentElement,n=d.dataset.theme==='dark'?'light':'dark';d.dataset.theme=n;LS.set('hg_tema',n)};
 $('#quien').onclick=()=>{const u=user;user=null;render();if(u)$('#ln').value=u.nombre};
 document.documentElement.dataset.theme=LS.get('hg_tema','light');
